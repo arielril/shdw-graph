@@ -5,17 +5,187 @@ info:
   version: 0.0.1
 servers:
   - url: http://localhost:3000/v1
+tags:
+  - name: Nodes
+  - name: Edges
 paths:
-  /users:
-    get:
-      summary: Returns a list of users.
-      description: Optional extended description in CommonMark or HTML.
+  /nodes:
+    post:
+      tags:
+        - Nodes
+      summary: Add a new node
+      description: Add a new node in the structure
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/CreateNodeRequestContent'
       responses:
-        '200': # status code
-          description: A JSON array of user names
+        '201':
+          description: The node was created with success
           content:
             application/json:
               schema:
+                $ref: '#/components/schemas/CreatedNodeResponseContent'
+
+    get:
+      tags:
+        - Nodes
+      summary: List all nodes
+      description: List all nodes
+      responses:
+        200:
+          description: All nodes
+          content:
+            'application/json':
+              schema:
                 type: array
                 items:
-                  type: string
+                  $ref: '#/components/schemas/NodeSchema'
+
+  /nodes/{uid}:
+    get:
+      tags:
+        - Nodes
+      summary: Retrieve one node
+      description: Get all information about one node
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          schema:
+            $ref: '#/components/schemas/Uid'
+      responses:
+        200:
+          description: All node information response
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/NodeSchema'
+
+  /edges:
+    post:
+      tags:
+        - Edges
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              properties:
+                some:
+                  type: boolean
+      responses:
+        201:
+          description: Added
+          content:
+            'application/json':
+              schema:
+                properties:
+                  some:
+                    type: boolean
+
+components:
+  schemas:
+    Uid:
+      properties:
+        uid:
+          type: string
+          description: Unique identifier
+          example: 'D6AD7C75-76B6-4D33-9D91-D1DC07046F06'
+
+    CreatedNodeResponseContent:
+      properties:
+        uid:
+          $ref: '#/components/schemas/Uid'
+        name:
+          type: string
+          description: Name of the node
+          example: WordPress
+        tags:
+          type: array
+          items:
+            type: string
+          example:
+            - internal
+            - exploitable
+            - vulnerable
+            - web
+            - network
+
+    CreateNodeRequestContent:
+      properties:
+        name:
+          type: string
+          description: Name of the node
+          example: WordPress
+        port:
+          type: number
+          description: Port that the service represented by the node is running
+          example: 80
+        tags:
+          description: List of tags that can help filtering
+          type: array
+          items:
+            type: string
+          example:
+            - internal
+            - exploitable
+            - vulnerable
+            - web
+            - network
+        metadata:
+          properties:
+            command:
+              type: string
+              description: Executed command. Useful when the node is a "command" node
+              example: 'nmap -sC -sV -oA nmap/initial vulnerable-server.com'
+
+    EdgeSchema:
+      properties:
+        none:
+          type: string
+
+    NodeSchema:
+      properties:
+        uid:
+          type: string
+          description: Unique identifier of the node
+          example: 'D6AD7C75-76B6-4D33-9D91-D1DC07046F06'
+        name:
+          type: string
+          description: Name of the node
+          example: WordPress
+        edges:
+          type: array
+          items:
+            properties:
+              goFrom:
+                description: List of edges uid that go from this node to another place
+                type: array
+                items:
+                  $ref: '#/components/schemas/Uid'
+              comeTo:
+                description: List of edges uid that come to this node from somewhere
+                type: array
+                items:
+                  $ref: '#/components/schemas/Uid'
+        port:
+          type: number
+          description: Port that the service represented by the node is running
+          example: 80
+        tags:
+          type: array
+          items:
+            type: string
+          example:
+            - internal
+            - exploitable
+            - vulnerable
+            - web
+            - network
+        metadata:
+          properties:
+            command:
+              type: string
+              description: Executed command. Useful when the node is a "command" node
+              example: 'nmap -sC -sV -oA nmap/initial vulnerable-server.com'
