@@ -72,8 +72,31 @@ paths:
           'application/json':
             schema:
               properties:
-                some:
-                  type: boolean
+                startNode:
+                  type: object
+                  properties:
+                    uid:
+                      $ref: '#/components/schemas/Uid'
+                    name:
+                      $ref: '#/components/schemas/NodeSchema/properties/name'
+                destinations:
+                  type: array
+                  items:
+                    properties:
+                      node:
+                        properties:
+                          uid:
+                            $ref: '#/components/schemas/Uid/properties/uid'
+                          name:
+                            $ref: '#/components/schemas/NodeSchema/properties/name'
+                      edgeProperties:
+                        properties:
+                          label:
+                            $ref: '#/components/schemas/EdgeSchema/properties/label'
+                          weight:
+                            $ref: '#/components/schemas/EdgeSchema/properties/weight'
+                          tags:
+                            $ref: '#/components/schemas/EdgeSchema/properties/tags'
       responses:
         201:
           description: Added
@@ -81,8 +104,29 @@ paths:
             'application/json':
               schema:
                 properties:
-                  some:
-                    type: boolean
+                  startNode:
+                    type: object
+                    properties:
+                      uid:
+                        $ref: '#/components/schemas/Uid/properties/uid'
+                      name:
+                        $ref: '#/components/schemas/NodeSchema/properties/name'
+                  destinations:
+                    type: array
+                    items:
+                      properties:
+                        node:
+                          properties:
+                            uid:
+                              $ref: '#/components/schemas/Uid/properties/uid'
+                            name:
+                              $ref: '#/components/schemas/NodeSchema/properties/name'
+                  edge:
+                    properties:
+                      uid:
+                        $ref: '#/components/schemas/Uid/properties/uid'
+                      label:
+                        $ref: '#/components/schemas/EdgeLabel/properties/label'
 
 components:
   schemas:
@@ -142,8 +186,33 @@ components:
 
     EdgeSchema:
       properties:
-        none:
+        uid:
+          $ref: '#/components/schemas/Uid/properties/uid'
+        label:
+          $ref: '#/components/schemas/EdgeLabel/properties/label'
+        weight:
+          type: number
+          description: Weight of the edge
+          example: 34.44
+        tags:
+          type: array
+          items:
+            properties:
+              key:
+                type: string
+                description: Key of the tag
+                example: URL
+              value:
+                type: string
+                description: Value of the tag
+                example: http://example.com/vulnerable/contact/form
+
+    EdgeLabel:
+      properties:
+        label:
           type: string
+          description: Label of the edge
+          example: Cross Site Script (XSS)
 
     NodeSchema:
       properties:
