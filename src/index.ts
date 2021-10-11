@@ -3,6 +3,7 @@ import httpStatus from 'http-status-codes';
 import { Logger } from './util/logger';
 import { errorHandler } from './middleware/errorHandler';
 import { ExpressLogger } from './middleware/expressLogger';
+import { Routes } from './routes';
 
 const expressLogger = new ExpressLogger(Logger);
 
@@ -12,6 +13,9 @@ app.use(
   expressLogger.onSuccess.bind(expressLogger),
   expressLogger.onError.bind(expressLogger),
 );
+
+const router = new Routes(app);
+router.registerRoutes();
 
 // 404 NotFound response
 app.use('*', (req, res, next) => {
