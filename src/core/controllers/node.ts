@@ -1,36 +1,51 @@
 import httpStatus from 'http-status-codes';
+import * as R from 'ramda';
 
 import { Node } from '../services/node';
 
 import { HttpNext, HttpRequest, HttpResponse } from '../../types/http';
-import { Node as NodeModel } from '../../types/model';
 
 const createNode = async (req: HttpRequest, res: HttpResponse, next: HttpNext) => {
   const nodeService = new Node();
 
-  await nodeService.create({
-    name: 'SSH',
-    port: 22,
-    service: 'SSH',
-    tags: ['network', 'ssl'],
-  } as Partial<NodeModel>);
+  const createNode = R.pipe(
+    R.propOr({}, 'body'),
+    R.pick(['name', 'service', 'port', 'tags', 'metadata']),
+  )(req);
 
+  const result = await nodeService.create(createNode);
 
-  return res.status(httpStatus.ACCEPTED).json({
-    func: 'create-node'
-  });
+  return res.status(httpStatus.CREATED).json(result);
 };
 
-const listNodes = (req: HttpRequest, res: HttpResponse, next: HttpNext) => {
-  return res.status(httpStatus.ACCEPTED).json({
-    func: 'list-nodes'
-  });
+const listNodes = async (req: HttpRequest, res: HttpResponse, next: HttpNext) => {
+  const filter = R.pipe(
+    R.propOr({}, 'query'),
+    R.pick(['name', 'service', 'port', 'tags']),
+  )(req);
+  const nodeService = new Node();
+
+  const nodeList = await nodeService.find(filter);
+
+
+  return res.status(httpStatus.OK).json(nodeList);
 };
 
-const getNodeUid = (req: HttpRequest, res: HttpResponse, next: HttpNext) => {
-  return res.status(httpStatus.ACCEPTED).json({
-    func: 'get-node-uid'
+const getNodeUid = async (req: HttpRequest, res: HttpResponse, next: HttpNext) => {
+  const nodeUid = R.path(['params', 'uid'], req) as string;
+
+  if (!nodeUid) {
+    return res.status(httpStatus.BAD_GATEWAY).json({
+      message: 'invalid node uid',
+    });
+  }
+
+  const nodeService = new Node();
+  const nodeList = await nodeService.find({
+    uid: nodeUid,
   });
+
+  return res.status(httpStatus.OK).json(nodeList);
 };
 
 export default {
