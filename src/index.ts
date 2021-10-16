@@ -19,7 +19,7 @@ router.registerRoutes();
 
 // 404 NotFound response
 app.use('*', (req, res, next) => {
-  res
+  return res
     .status(httpStatus.NOT_FOUND)
     .send({
       message: 'Page not found',

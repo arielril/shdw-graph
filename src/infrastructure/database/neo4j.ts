@@ -5,7 +5,7 @@ import { Logger } from '../../util/logger';
 
 let connection: Neo4jDriver;
 
-const getConnection = (config: Neo4jConfig) => {
+const getConnection = (config: Neo4jConfig): Neo4jDriver => {
   if (connection) {
     return connection;
   }

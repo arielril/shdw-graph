@@ -24,6 +24,8 @@ rules:
   '@typescript-eslint/no-inferrable-types':
     - 'warn'
     - ignoreParameters: true
+  '@typescript-eslint/lines-between-class-members': 0
+  '@typescript-eslint/naming-convention': 0
 settings:
   import/resolver:
     node:

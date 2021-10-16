@@ -4,48 +4,71 @@ import * as R from 'ramda';
 import { Node } from '../services/node';
 
 import { HttpNext, HttpRequest, HttpResponse } from '../../types/http';
+import { Edge } from '../services/edge';
 
-const createNode = async (req: HttpRequest, res: HttpResponse, next: HttpNext) => {
-  const nodeService = new Node();
+const nodeService = new Node();
 
-  const createNode = R.pipe(
-    R.propOr({}, 'body'),
-    R.pick(['name', 'service', 'port', 'tags', 'metadata']),
-  )(req);
+const createNode = async (req: HttpRequest, res: HttpResponse, next: HttpNext): Promise<unknown> => {
+  try {
+    const nodeData = R.pipe(
+      R.propOr({}, 'body'),
+      R.pick(['name', 'service', 'port', 'tags', 'metadata']),
+    )(req);
 
-  const result = await nodeService.create(createNode);
+    if (R.isEmpty(nodeData)) {
+      return res.status(httpStatus.BAD_REQUEST)
+        .json({
+          message: 'empty node information',
+        });
+    }
 
-  return res.status(httpStatus.CREATED).json(result);
-};
+    const result = await nodeService.create(nodeData);
 
-const listNodes = async (req: HttpRequest, res: HttpResponse, next: HttpNext) => {
-  const filter = R.pipe(
-    R.propOr({}, 'query'),
-    R.pick(['name', 'service', 'port', 'tags']),
-  )(req);
-  const nodeService = new Node();
-
-  const nodeList = await nodeService.find(filter);
-
-
-  return res.status(httpStatus.OK).json(nodeList);
-};
-
-const getNodeUid = async (req: HttpRequest, res: HttpResponse, next: HttpNext) => {
-  const nodeUid = R.path(['params', 'uid'], req) as string;
-
-  if (!nodeUid) {
-    return res.status(httpStatus.BAD_GATEWAY).json({
-      message: 'invalid node uid',
+    return res.status(httpStatus.CREATED).json({
+      node: R.pathOr({}, ['_fields', 0, 'properties'], result),
     });
+  } catch (error) {
+    next(error);
   }
+};
 
-  const nodeService = new Node();
-  const nodeList = await nodeService.find({
-    uid: nodeUid,
-  });
+const listNodes = async (req: HttpRequest, res: HttpResponse, next: HttpNext): Promise<unknown> => {
+  try {
+    const filter = R.pipe(
+      R.propOr({}, 'query'),
+      R.pick(['name', 'service', 'port', 'tags']),
+    )(req);
 
-  return res.status(httpStatus.OK).json(nodeList);
+    const nodeList = await nodeService.find(filter);
+
+    return res.status(httpStatus.OK).json({
+      nodes: nodeList.map(R.path(['_fields', 0, 'properties'])),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getNodeUid = async (req: HttpRequest, res: HttpResponse, next: HttpNext): Promise<unknown> => {
+  try {
+    const nodeUid = R.path(['params', 'uid'], req) as string;
+
+    if (!nodeUid) {
+      return res.status(httpStatus.BAD_GATEWAY).json({
+        message: 'invalid node uid',
+      });
+    }
+
+    const nodeList = await nodeService.find({
+      uid: nodeUid,
+    });
+
+    return res.status(httpStatus.OK).json({
+      node: R.pathOr({}, [0, '_fields', 0, 'properties'], nodeList),
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export default {

@@ -1,5 +1,6 @@
 import { getConnection } from '../infrastructure/database/neo4j';
 import { Node } from '../infrastructure/repository/node';
+import { Edge } from '../infrastructure/repository/edge';
 import env from '../util/env';
 
 import { Neo4jConfig } from '../types/infrastructure';
@@ -7,6 +8,11 @@ import { Neo4jConfig } from '../types/infrastructure';
 const createNodeRepository = (dbConfig: Neo4jConfig) => {
   const conn = getConnection(dbConfig);
   return new Node({ neoDriver: conn });
+};
+
+const createEdgeRepository = (dbConfig: Neo4jConfig) => {
+  const conn = getConnection(dbConfig);
+  return new Edge({ neoDriver: conn });
 };
 
 export const getInfraContainer = () => {
@@ -18,6 +24,6 @@ export const getInfraContainer = () => {
 
   return {
     nodeRepository: createNodeRepository(dbConfig),
-    // edgeRepository: createEdgeRepository(dbConfig),
+    edgeRepository: createEdgeRepository(dbConfig),
   };
 };

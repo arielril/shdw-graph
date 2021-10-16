@@ -11,9 +11,7 @@
   },
   "include": [
     "src/**/**/*.ts",
-    "src/**/**/*.d.ts",
-    "migrations/*.ts",
-    "configs/jest.config.ts"
+    "src/**/**/*.d.ts"
   ],
   "exclude": [
     "dist",

@@ -10,7 +10,7 @@ export class Routes {
     this._router = router;
   }
 
-  registerRoutes() {
+  registerRoutes(): void {
     // Node routes
     this._router
       .post('/v1/nodes', NodeController.createNode)
@@ -19,7 +19,8 @@ export class Routes {
 
     // Edge routes
     this._router
-      .post('/v1/edges', EdgeController.createEdge);
+      .post('/v1/edges', EdgeController.createEdge)
+      .get('/v1/edges/:uid', EdgeController.getEdgeByUid);
   }
 
 }

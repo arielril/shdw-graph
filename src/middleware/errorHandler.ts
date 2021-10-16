@@ -7,7 +7,7 @@ export const errorHandler = (
   req: HttpRequest,
   res: HttpResponse,
   next: HttpNext,
-) => {
+): unknown => {
   Logger.error(err);
 
   return res

@@ -76,7 +76,7 @@ paths:
                   type: object
                   properties:
                     uid:
-                      $ref: '#/components/schemas/Uid'
+                      $ref: '#/components/schemas/Uid/properties/uid'
                     name:
                       $ref: '#/components/schemas/NodeSchema/properties/name'
                 destinations:
@@ -90,13 +90,13 @@ paths:
                           name:
                             $ref: '#/components/schemas/NodeSchema/properties/name'
                       edgeProperties:
-                        properties:
-                          label:
-                            $ref: '#/components/schemas/EdgeSchema/properties/label'
-                          weight:
-                            $ref: '#/components/schemas/EdgeSchema/properties/weight'
-                          tags:
-                            $ref: '#/components/schemas/EdgeSchema/properties/tags'
+                        $ref: '#/components/schemas/EdgeSchema'
+                        # properties:
+                        #   label:
+                        #   weight:
+                        #     $ref: '#/components/schemas/EdgeSchema/properties/weight'
+                        #   tags:
+                        #     $ref: '#/components/schemas/EdgeSchema/properties/tags'
       responses:
         201:
           description: Added
@@ -127,6 +127,28 @@ paths:
                         $ref: '#/components/schemas/Uid/properties/uid'
                       label:
                         $ref: '#/components/schemas/EdgeLabel/properties/label'
+   
+  /edges/:uid:
+    get:
+      tags:
+        - Edges
+      summary: Retrieve Edge data
+      description: Get all data from an Edge
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          schema:
+            $ref: '#/components/schemas/Uid'
+
+      responses:
+        200:
+          description: All data from an Edge
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/EdgeSchema'
+
 
 components:
   schemas:
@@ -140,7 +162,7 @@ components:
     CreatedNodeResponseContent:
       properties:
         uid:
-          $ref: '#/components/schemas/Uid'
+          $ref: '#/components/schemas/Uid/properties/uid'
         name:
           type: string
           description: Name of the node
@@ -157,32 +179,33 @@ components:
             - network
 
     CreateNodeRequestContent:
-      properties:
-        name:
-          type: string
-          description: Name of the node
-          example: WordPress
-        port:
-          type: number
-          description: Port that the service represented by the node is running
-          example: 80
-        tags:
-          description: List of tags that can help filtering
-          type: array
-          items:
-            type: string
-          example:
-            - internal
-            - exploitable
-            - vulnerable
-            - web
-            - network
-        metadata:
-          properties:
-            command:
-              type: string
-              description: Executed command. Useful when the node is a "command" node
-              example: 'nmap -sC -sV -oA nmap/initial vulnerable-server.com'
+      $ref: '#/components/schemas/NodeSchema'
+      # properties:
+      #   name:
+      #     type: string
+      #     description: Name of the node
+      #     example: WordPress
+      #   port:
+      #     type: number
+      #     description: Port that the service represented by the node is running
+      #     example: 80
+      #   tags:
+      #     description: List of tags that can help filtering
+      #     type: array
+      #     items:
+      #       type: string
+      #     example:
+      #       - internal
+      #       - exploitable
+      #       - vulnerable
+      #       - web
+      #       - network
+      #   metadata:
+      #     properties:
+      #       command:
+      #         type: string
+      #         description: Executed command. Useful when the node is a "command" node
+      #         example: 'nmap -sC -sV -oA nmap/initial vulnerable-server.com'
 
     EdgeSchema:
       properties:
@@ -232,12 +255,12 @@ components:
                 description: List of edges uid that go from this node to another place
                 type: array
                 items:
-                  $ref: '#/components/schemas/Uid'
+                  $ref: '#/components/schemas/EdgeSchema'
               comeTo:
                 description: List of edges uid that come to this node from somewhere
                 type: array
                 items:
-                  $ref: '#/components/schemas/Uid'
+                  $ref: '#/components/schemas/EdgeSchema'
         port:
           type: number
           description: Port that the service represented by the node is running

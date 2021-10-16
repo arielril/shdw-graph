@@ -1,4 +1,4 @@
-import { Node as NodeModel } from './model';
+import { Edge as EdgeModel, Node as NodeModel } from './model';
 
 export type Neo4jConfig = {
   host: string;
@@ -14,3 +14,17 @@ export interface INodeRepository {
   update(filter: Partial<NodeModel>, data: Partial<NodeModel>): Promise<NodeModel>;
 }
 
+export interface IEdgeRepository {
+  createRelationship(
+    startNode: Pick<NodeModel, 'uid' | 'name'>,
+    endNode: Partial<NodeModel>,
+    edgeData: Partial<EdgeModel>,
+  ): Promise<unknown>;
+
+  findRelationships(
+    startNode: Pick<NodeModel, 'uid' | 'name'>,
+    edgeFilter: Partial<EdgeModel>,
+  ): Promise<unknown>;
+
+  find(edge: Partial<EdgeModel>): Promise<unknown>;
+}

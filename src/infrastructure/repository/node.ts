@@ -18,33 +18,29 @@ export class Node implements INodeRepository {
 
   private setDefaultValues = R.mergeDeepRight({
     name: 'TBD',
-    service: '-1',
-    port: -1,
     tags: [],
-    metadata: {},
   });
+
+  private getCreateNodeQueryProps = (node: NodeModel) => Object.keys(node)
+    .map(key => `${key}: $${key}`)
+    .join(',');
 
   async create(node: Partial<NodeModel>): Promise<NodeModel> {
     const uid = uuid();
     const session = this._driver.session();
 
     try {
+      const insertNode = R.pipe(
+        R.pick(['name', 'service', 'port', 'tags', 'metadata']),
+        this.setDefaultValues,
+        R.assoc('uid', uid),
+      )(node) as NodeModel;
+
       const res = await session.run(
         `create (n: Node { 
-          uid: $uid,
-          name: $name,
-          service: $service,
-          port: $port,
-          tags: $tags
+          ${this.getCreateNodeQueryProps(insertNode)}
         }) return n`,
-        R.pipe(
-          R.pick(['name', 'service', 'port', 'tags']),
-          R.tap(x => console.log('!#!#@#!#!@#!@', x)),
-          this.setDefaultValues,
-          R.tap(x => console.log('!#!#@#!#!@#!@', x)),
-          R.assoc('uid', uid),
-          R.tap(x => console.log('!#!#@#!#!@#!@', x)),
-        )(node),
+        insertNode,
       );
 
       Logger.debug({ neo: res }, 'inserted node to database');
