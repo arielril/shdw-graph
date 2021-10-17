@@ -64,7 +64,21 @@ paths:
                 $ref: '#/components/schemas/NodeSchema'
 
   /edges:
+    get:
+      summary: List all edges
+      tags:
+        - Edges
+      responses:
+        200:
+          description: Edge list
+          content:
+            'application/json':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EdgeSchema'
     post:
+      summary: Create new edge
       tags:
         - Edges
       requestBody:
@@ -132,7 +146,7 @@ paths:
     get:
       tags:
         - Edges
-      summary: Retrieve Edge data
+      summary: Retrieve an Edge data
       description: Get all data from an Edge
       parameters:
         - in: path

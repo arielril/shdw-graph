@@ -20,6 +20,7 @@ export class Routes {
     // Edge routes
     this._router
       .post('/v1/edges', EdgeController.createEdge)
+      .get('/v1/edges', EdgeController.listAllEdges)
       .get('/v1/edges/:uid', EdgeController.getEdgeByUid);
   }
 

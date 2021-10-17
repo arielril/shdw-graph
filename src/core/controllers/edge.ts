@@ -94,8 +94,20 @@ const getEdgeByUid = async (req: HttpRequest, res: HttpResponse, next: HttpNext)
   } 
 }
 
+const listAllEdges = async (req: HttpRequest, res: HttpResponse, next: HttpNext) => {
+  try {
+    const edgeList = await edgeService.find({});
+
+    return res.status(httpStatus.OK)
+      .json(edgeList.map(R.path(['_fields', 0, 'properties'])));
+  } catch (error) {
+    next(error);
+  }
+}
+
 export default {
   createEdge,
   getEdgeByUid,
+  listAllEdges,
 };
 
