@@ -24,7 +24,7 @@ export class Edge implements IEdgeRepository {
   });
 
   async createRelationship(
-    startNode: Pick<NodeModel, 'uid' | 'name'>,
+    startNode: Pick<NodeModel, 'uid' | 'name' | 'port'>,
     endNode: Partial<NodeModel>,
     edgeData: Partial<EdgeModel>,
   ): Promise<any> {
@@ -40,16 +40,13 @@ export class Edge implements IEdgeRepository {
 
       const query = `
         match 
-          (nStart: Node),
-          (nEnd: Node)
-        where 
-          (nStart.uid = $nStartUid or nStart.name = $nStartName) 
-          and (nEnd.uid = $nEndUid or nEnd.name = $nEndName)
-        create
-          (nStart)-[e: EDGE {
-            ${Object.keys(__edgeData__).map(k => `${k}: $${k}`).join(',')}
+          (nStart: Node { uid: $n_uid }),
+          (nEnd: Node { uid: $m_uid })
+        merge
+          (nStart)-[e: EDGE { 
+            ${Object.keys(__edgeData__).map(k => `${k}: $${k}`).join(',')} 
           }]->(nEnd)
-        return nStart, nEnd, e;
+        return nStart, nEnd, e
       `;
 
       const res = await session.run(
@@ -57,10 +54,8 @@ export class Edge implements IEdgeRepository {
         R.mergeDeepLeft(
           __edgeData__,
           {
-            nStartUid: startNode.uid || '',
-            nStartName: startNode.name || '',
-            nEndUid: endNode.uid || '',
-            nEndName: endNode.name || '',
+            n_uid: startNode.uid || '',
+            m_uid: endNode.uid || '',
           },
         ),
       );
@@ -82,7 +77,7 @@ export class Edge implements IEdgeRepository {
     const session = this._driver.session()
     
     try {
-      const __filter__ = R.pick(['uid', 'name', 'weight'], edge);
+      const __filter__ = R.pick(['uid', 'name', 'label', 'weight'], edge);
       const where = Object.keys(__filter__)
         .map(key => `${key}: $${key}`)
         .join(',');
@@ -98,6 +93,41 @@ export class Edge implements IEdgeRepository {
       return res.records; 
     } catch (error) {
       Logger.error({ error, edge }, 'failed to find edge')
+      throw error;
+    } finally {
+      session.close();
+    }
+  }
+
+  async update(filter: Partial<EdgeModel>, data: Partial<EdgeModel>): Promise<unknown> {
+    const session = this._driver.session();
+
+    try {
+      const setQueryKeys = Object.keys(R.omit(['uid'], data))
+        .map(k => `e.${k} = $${k}`)
+        .join(',');
+
+      let setQuery = '';
+      if (setQueryKeys) {
+        setQuery = `set ${setQueryKeys}`;
+      }
+
+      const filterQuery = Object.keys(filter)
+        .map(k => `${k}: $${k}`)
+        .join(',');
+
+      const res = await session.run(
+        `
+          match ()-[e: EDGE { ${filterQuery} }]-()
+          ${setQuery}
+          return e
+        `,
+        R.mergeDeepLeft(filter, data),
+      );
+
+      return res.records[0];
+    } catch (error) {
+      Logger.error({ error, edge: data }, 'failed to update edge data');
       throw error;
     } finally {
       session.close();

@@ -81,27 +81,20 @@ export class Node implements INodeRepository {
     const session = this._driver.session();
 
     try {
-      const dataKeys = ['name', 'port', 'service', 'tags'];
-      const __filter__ = R.pick([...dataKeys, 'uid'], filter);
+      const setQueryKeys = Object.keys(R.omit(['uid'], data))
+        .map(k => `n.${k} = $${k}`)
+        .join(',');
 
-      const updateData = {
-        nameK: data.name,
-        portK: data.port,
-        serviceK: data.service,
-        tagsK: data.tags,
-      };
+      let setQuery = '';
+      if (setQueryKeys) {
+        setQuery = `set ${setQueryKeys}`
+      }
 
       const res = await session.run(
-        `merge (n: Node {
-          uid: $uid,
-          name: $name,
-          port: $port,
-          service: $service,
-          tags: $tags
-        }) 
-        on create ${dataKeys.map(k => `n.${k} = $${k}K`).join(',')}
+        `match (n: Node { uid: $uid })
+        ${setQuery}
         return n`,
-        R.mergeDeepLeft(__filter__, updateData),
+        R.mergeDeepLeft(filter, data),
       );
 
       return res.records[0] as unknown as NodeModel;

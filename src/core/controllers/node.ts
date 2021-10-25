@@ -24,9 +24,7 @@ const createNode = async (req: HttpRequest, res: HttpResponse, next: HttpNext): 
 
     const result = await nodeService.create(nodeData);
 
-    return res.status(httpStatus.CREATED).json({
-      node: R.pathOr({}, ['_fields', 0, 'properties'], result),
-    });
+    return res.status(httpStatus.CREATED).json(R.pathOr({}, ['_fields', 0, 'properties'], result));
   } catch (error) {
     next(error);
   }
@@ -41,9 +39,7 @@ const listNodes = async (req: HttpRequest, res: HttpResponse, next: HttpNext): P
 
     const nodeList = await nodeService.find(filter);
 
-    return res.status(httpStatus.OK).json({
-      nodes: nodeList.map(R.path(['_fields', 0, 'properties'])),
-    });
+    return res.status(httpStatus.OK).json(nodeList.map(R.path(['_fields', 0, 'properties'])));
   } catch (error) {
     next(error);
   }
@@ -63,9 +59,7 @@ const getNodeUid = async (req: HttpRequest, res: HttpResponse, next: HttpNext): 
       uid: nodeUid,
     });
 
-    return res.status(httpStatus.OK).json({
-      node: R.pathOr({}, [0, '_fields', 0, 'properties'], nodeList),
-    });
+    return res.status(httpStatus.OK).json(R.pathOr({}, [0, '_fields', 0, 'properties'], nodeList));
   } catch (error) {
     next(error);
   }

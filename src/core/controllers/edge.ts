@@ -38,32 +38,39 @@ const createEdge = async (req: HttpRequest, res: HttpResponse, next: HttpNext): 
       ],
       edgeRes,
     );
-    const resEndNode = R.pathOr(
-      {}, 
-      [
-        0, 0, 
-        '_fields',
-        R.path([0, 0, '_fieldLookup', 'nEnd'], edgeRes) as number,
-        'properties',
-      ],
-      edgeRes,
+
+    const destinations = edgeRes.map(
+      (edgeResult: any) => {
+        return {
+          node: R.pathOr(
+            {},
+            [
+              0,
+              '_fields',
+              R.path([0, '_fieldLookup', 'nEnd'], edgeResult) as number,
+              'properties',
+            ],
+            edgeResult,
+          ),
+          edge: R.pathOr(
+            {},
+            [
+              0,
+              '_fields',
+              R.path([0, '_fieldLookup', 'e'], edgeResult) as number,
+              'properties'
+            ],
+            edgeResult,
+          ),
+        };
+      }
     );
-    const resEdge = R.pathOr(
-      {}, 
-      [
-        0, 0, 
-        '_fields',
-        R.path([0, 0, '_fieldLookup', 'e'], edgeRes) as number,
-        'properties', 
-      ],
-      edgeRes,
-    );
+
 
     return res.status(httpStatus.CREATED)
       .json({
         startNode: resStartNode,
-        endNode: resEndNode,
-        edge: resEdge,
+        destinations,
       });
   } catch (error) {
     next(error);
@@ -86,9 +93,7 @@ const getEdgeByUid = async (req: HttpRequest, res: HttpResponse, next: HttpNext)
     });
 
     return res.status(httpStatus.OK)
-      .json({
-        edge: R.pathOr({}, [0, '_fields', 0, 'properties'], edgeData),
-      })
+      .json(R.pathOr({}, [0, '_fields', 0, 'properties'], edgeData));
   } catch (error) {
     next(error);
   } 

@@ -27,4 +27,6 @@ export interface IEdgeRepository {
   ): Promise<unknown>;
 
   find(edge: Partial<EdgeModel>): Promise<unknown>;
+
+  update(filter: Partial<EdgeModel>, data: Partial<EdgeModel>): Promise<unknown>;
 }

@@ -105,12 +105,7 @@ paths:
                             $ref: '#/components/schemas/NodeSchema/properties/name'
                       edgeProperties:
                         $ref: '#/components/schemas/EdgeSchema'
-                        # properties:
-                        #   label:
-                        #   weight:
-                        #     $ref: '#/components/schemas/EdgeSchema/properties/weight'
-                        #   tags:
-                        #     $ref: '#/components/schemas/EdgeSchema/properties/tags'
+                        
       responses:
         201:
           description: Added
@@ -135,14 +130,14 @@ paths:
                               $ref: '#/components/schemas/Uid/properties/uid'
                             name:
                               $ref: '#/components/schemas/NodeSchema/properties/name'
-                  edge:
-                    properties:
-                      uid:
-                        $ref: '#/components/schemas/Uid/properties/uid'
-                      label:
-                        $ref: '#/components/schemas/EdgeLabel/properties/label'
+                        edge:
+                          properties:
+                            uid:
+                              $ref: '#/components/schemas/Uid/properties/uid'
+                            label:
+                              $ref: '#/components/schemas/EdgeLabel/properties/label'
    
-  /edges/:uid:
+  /edges/{uid}:
     get:
       tags:
         - Edges
@@ -191,6 +186,8 @@ components:
             - vulnerable
             - web
             - network
+        port:
+          $ref: '#/components/schemas/NodeSchema/properties/port'
 
     CreateNodeRequestContent:
       $ref: '#/components/schemas/NodeSchema'
