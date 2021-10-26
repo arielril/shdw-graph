@@ -21,9 +21,11 @@ export class Node implements INodeRepository {
     tags: [],
   });
 
-  private getCreateNodeQueryProps = (node: NodeModel) => Object.keys(node)
-    .map(key => `${key}: $${key}`)
-    .join(',');
+  private getCreateNodeQueryProps = R.pipe(
+    Object.keys,
+    R.map(key => `${key}: $${key}`),
+    R.join(','),
+  );
 
   async create(node: Partial<NodeModel>): Promise<NodeModel> {
     const uid = uuid();
@@ -33,13 +35,15 @@ export class Node implements INodeRepository {
       const insertNode = R.pipe(
         R.pick(['name', 'service', 'port', 'tags', 'metadata']),
         this.setDefaultValues,
-        R.assoc('uid', uid),
       )(node) as NodeModel;
 
       const res = await session.run(
-        `create (n: Node { 
+        `merge (n: Node { 
           ${this.getCreateNodeQueryProps(insertNode)}
-        }) return n`,
+        }) 
+        on create
+          set n.uid = randomUUID()
+        return n`,
         insertNode,
       );
 
@@ -90,10 +94,13 @@ export class Node implements INodeRepository {
         setQuery = `set ${setQueryKeys}`
       }
 
-      const res = await session.run(
-        `match (n: Node { uid: $uid })
+      const query = `match (n: Node { uid: $uid })
         ${setQuery}
-        return n`,
+        return n`;
+      console.log('\nupdate node query >>', query, '\n\n');
+
+      const res = await session.run(
+        query,
         R.mergeDeepLeft(filter, data),
       );
 
