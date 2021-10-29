@@ -105,7 +105,7 @@ paths:
                             $ref: '#/components/schemas/NodeSchema/properties/name'
                       edgeProperties:
                         $ref: '#/components/schemas/EdgeSchema'
-                        
+
       responses:
         201:
           description: Added
@@ -136,7 +136,7 @@ paths:
                               $ref: '#/components/schemas/Uid/properties/uid'
                             label:
                               $ref: '#/components/schemas/EdgeLabel/properties/label'
-   
+
   /edges/{uid}:
     get:
       tags:
@@ -157,7 +157,6 @@ paths:
             'application/json':
               schema:
                 $ref: '#/components/schemas/EdgeSchema'
-
 
 components:
   schemas:
@@ -188,6 +187,9 @@ components:
             - network
         port:
           $ref: '#/components/schemas/NodeSchema/properties/port'
+        status_code:
+          $ref: '#/components/schemas/NodeSchema/properties/status_code'
+
 
     CreateNodeRequestContent:
       $ref: '#/components/schemas/NodeSchema'
@@ -250,6 +252,10 @@ components:
           type: number
           description: Port that the service represented by the node is running
           example: 80
+        status_code:
+          type: number
+          description: Status code from a HTTP request
+          example: 201
         tags:
           type: array
           items:

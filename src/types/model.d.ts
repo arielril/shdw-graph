@@ -6,6 +6,7 @@ export type Node = {
     comeTo: Edge[];
   }[];
   port?: number; // port of the service that is running
+  status_code?: number; // status code of a HTTP request
   tags?: string[];
   metadata?: {
     // the command that was executed 

@@ -17,7 +17,7 @@ export class Node implements INodeRepository {
   }
 
   private setDefaultValues = R.mergeDeepRight({
-    name: 'TBD',
+    name: 'undefined',
     tags: [],
   });
 
@@ -33,7 +33,7 @@ export class Node implements INodeRepository {
 
     try {
       const insertNode = R.pipe(
-        R.pick(['name', 'port', 'tags', 'metadata']),
+        R.pick(['name', 'port', 'status_code', 'tags', 'metadata']),
         this.setDefaultValues,
       )(node) as NodeModel;
 
@@ -91,7 +91,7 @@ export class Node implements INodeRepository {
 
       let setQuery = '';
       if (setQueryKeys) {
-        setQuery = `set ${setQueryKeys}`
+        setQuery = `set ${setQueryKeys}`;
       }
 
       const query = `match (n: Node { uid: $uid })

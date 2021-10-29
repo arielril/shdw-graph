@@ -5,6 +5,7 @@ import { Node } from '../services/node';
 import { Logger } from '../../util/logger';
 
 import { HttpNext, HttpRequest, HttpResponse } from '../../types/http';
+import { Node as NodeModel } from '../../types/model';
 import { Edge } from '../services/edge';
 
 const nodeService = new Node();
@@ -13,7 +14,7 @@ const createNode = async (req: HttpRequest, res: HttpResponse, next: HttpNext): 
   try {
     const nodeData = R.pipe(
       R.propOr({}, 'body'),
-      R.pick(['name', 'port', 'tags', 'metadata']),
+      R.pick(['name', 'port', 'status_code', 'tags', 'metadata']),
     )(req);
 
     if (R.isEmpty(nodeData)) {
@@ -23,10 +24,16 @@ const createNode = async (req: HttpRequest, res: HttpResponse, next: HttpNext): 
         });
     }
 
-    const existingNode = await nodeService.find(R.pick(['port', 'tags'], nodeData));
-    Logger.debug({
-      node: R.path([0, '_fields', 0, 'properties'], existingNode),
-    }, 'the node to create already exists');
+    const searchNode = R.pick(['port', 'tags'], nodeData) as Partial<NodeModel>;
+    let existingNode = {} as NodeModel[];
+
+    if (searchNode.port) {
+      existingNode = await nodeService.find(searchNode);
+      Logger.debug({
+        node: R.path([0, '_fields', 0, 'properties'], existingNode),
+      }, 'the node to create already exists');
+    }
+
 
     let result: any;
     if (!R.isEmpty(existingNode)) {
