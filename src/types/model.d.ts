@@ -5,7 +5,6 @@ export type Node = {
     goFrom: Edge[];
     comeTo: Edge[];
   }[];
-  service?: string; // running service (can be used in the place of `name`)
   port?: number; // port of the service that is running
   tags?: string[];
   metadata?: {

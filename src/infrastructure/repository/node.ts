@@ -33,7 +33,7 @@ export class Node implements INodeRepository {
 
     try {
       const insertNode = R.pipe(
-        R.pick(['name', 'service', 'port', 'tags', 'metadata']),
+        R.pick(['name', 'port', 'tags', 'metadata']),
         this.setDefaultValues,
       )(node) as NodeModel;
 
@@ -61,7 +61,7 @@ export class Node implements INodeRepository {
     const session = this._driver.session();
 
     try {
-      const __filter__ = R.pick(['uid', 'name', 'port', 'service'], node);
+      const __filter__ = R.pick(['uid', 'name', 'port'], node);
 
       const filterQuery = Object.keys(__filter__)
         .map(k => `${k}: $${k}`);
@@ -97,7 +97,6 @@ export class Node implements INodeRepository {
       const query = `match (n: Node { uid: $uid })
         ${setQuery}
         return n`;
-      console.log('\nupdate node query >>', query, '\n\n');
 
       const res = await session.run(
         query,

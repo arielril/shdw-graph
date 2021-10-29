@@ -191,32 +191,6 @@ components:
 
     CreateNodeRequestContent:
       $ref: '#/components/schemas/NodeSchema'
-      # properties:
-      #   name:
-      #     type: string
-      #     description: Name of the node
-      #     example: WordPress
-      #   port:
-      #     type: number
-      #     description: Port that the service represented by the node is running
-      #     example: 80
-      #   tags:
-      #     description: List of tags that can help filtering
-      #     type: array
-      #     items:
-      #       type: string
-      #     example:
-      #       - internal
-      #       - exploitable
-      #       - vulnerable
-      #       - web
-      #       - network
-      #   metadata:
-      #     properties:
-      #       command:
-      #         type: string
-      #         description: Executed command. Useful when the node is a "command" node
-      #         example: 'nmap -sC -sV -oA nmap/initial vulnerable-server.com'
 
     EdgeSchema:
       properties:

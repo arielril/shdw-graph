@@ -2,6 +2,7 @@ import httpStatus from 'http-status-codes';
 import * as R from 'ramda';
 
 import { Node } from '../services/node';
+import { Logger } from '../../util/logger';
 
 import { HttpNext, HttpRequest, HttpResponse } from '../../types/http';
 import { Edge } from '../services/edge';
@@ -12,7 +13,7 @@ const createNode = async (req: HttpRequest, res: HttpResponse, next: HttpNext): 
   try {
     const nodeData = R.pipe(
       R.propOr({}, 'body'),
-      R.pick(['name', 'service', 'port', 'tags', 'metadata']),
+      R.pick(['name', 'port', 'tags', 'metadata']),
     )(req);
 
     if (R.isEmpty(nodeData)) {
@@ -22,7 +23,23 @@ const createNode = async (req: HttpRequest, res: HttpResponse, next: HttpNext): 
         });
     }
 
-    const result = await nodeService.create(nodeData);
+    const existingNode = await nodeService.find(R.pick(['port', 'tags'], nodeData));
+    Logger.debug({
+      node: R.path([0, '_fields', 0, 'properties'], existingNode),
+    }, 'the node to create already exists');
+
+    let result: any;
+    if (!R.isEmpty(existingNode)) {
+      // update an existing node
+      const existingNodeUid = R.path([0, '_fields', 0, 'properties', 'uid'], existingNode) as unknown as string;
+      result = await nodeService.update(
+        { uid: existingNodeUid },
+        nodeData,
+      );
+    } else {
+      // just create
+      result = await nodeService.create(nodeData);
+    }
 
     return res.status(httpStatus.CREATED).json(R.pathOr({}, ['_fields', 0, 'properties'], result));
   } catch (error) {
@@ -34,7 +51,7 @@ const listNodes = async (req: HttpRequest, res: HttpResponse, next: HttpNext): P
   try {
     const filter = R.pipe(
       R.propOr({}, 'query'),
-      R.pick(['name', 'service', 'port', 'tags']),
+      R.pick(['name', 'port', 'tags']),
     )(req);
 
     const nodeList = await nodeService.find(filter);
