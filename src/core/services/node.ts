@@ -24,4 +24,8 @@ export class Node {
   update(filter: Partial<NodeModel>, data: Partial<NodeModel>) {
     return this._nodeRepository.update(filter, data);
   }
+
+  getGraph(): Promise<unknown> {
+    return this._nodeRepository.getAll({});
+  }
 }

@@ -12,6 +12,7 @@ export interface INodeRepository {
   create(node: Partial<NodeModel>): Promise<NodeModel>;
   find(node: Partial<NodeModel>): Promise<NodeModel[]>;
   update(filter: Partial<NodeModel>, data: Partial<NodeModel>): Promise<NodeModel>;
+  getAll(): Promise<unknown>;
 }
 
 export interface IEdgeRepository {

@@ -111,4 +111,19 @@ export class Node implements INodeRepository {
       session.close();
     }
   }
+
+  async getAll(): Promise<unknown> {
+    const session = this._driver.session();
+
+    try {
+      const result = await session.run('match (n) return n');
+
+      return result;
+    } catch (error) {
+      Logger.error({ error }, 'failed to get graph');
+      throw error;
+    } finally {
+      session.close();
+    }
+  }
 }

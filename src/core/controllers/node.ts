@@ -6,7 +6,6 @@ import { Logger } from '../../util/logger';
 
 import { HttpNext, HttpRequest, HttpResponse } from '../../types/http';
 import { Node as NodeModel } from '../../types/model';
-import { Edge } from '../services/edge';
 
 const nodeService = new Node();
 
@@ -89,8 +88,19 @@ const getNodeUid = async (req: HttpRequest, res: HttpResponse, next: HttpNext): 
   }
 };
 
+const getGraph = async (req: HttpRequest, res: HttpResponse, next: HttpNext): Promise<unknown> => {
+  try {
+    const result = await nodeService.getGraph();
+
+    return res.status(httpStatus.OK).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   createNode,
   listNodes,
   getNodeUid,
+  getGraph,
 };
