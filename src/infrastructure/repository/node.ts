@@ -116,7 +116,7 @@ export class Node implements INodeRepository {
     const session = this._driver.session();
 
     try {
-      const result = await session.run('match (n) return n');
+      const result = await session.run('match (startNode)-[edge]->(endNode) return startNode,edge,endNode');
 
       return result;
     } catch (error) {
